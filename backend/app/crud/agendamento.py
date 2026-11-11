@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models.agendamento import Agendamento
+from app.model.agendamento import Agendamento
 from app.schemas.agendamento import AgendamentoCreate
 
 

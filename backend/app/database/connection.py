@@ -1,6 +1,6 @@
 import os
 
-from load_dotenv import load_dotenv
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -16,7 +16,7 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(
     autocommit=False,
-    autoFlus=False,
+    autoflush=False,
     bind=engine,
 )
 

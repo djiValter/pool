@@ -1,8 +1,8 @@
-from database.base import Base
+from app.database.base import Base
 from sqlalchemy import Column, Date, Integer, String, Time, UniqueConstraint
 
 
-class agendamentos(Base):
+class Agendamento(Base):
     __tablename__ = "agendamentos"
 
     # UniqueConstraint impede que existam dois agendamentos com a mesma
@@ -16,7 +16,7 @@ class agendamentos(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    name = Column(String(100), nullable=False)
+    nome = Column(String(100), nullable=False)
 
     email = Column(String(150), nullable=False, index=True)
 

@@ -11,7 +11,9 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
+from app.routers import agendamento
 
-@app.get("/")
-def inicio():
-    return {"mensagem": "API de agendamentos a funcionar"}
+app.include_router(agendamento.router)
+#@app.get("/")
+#def inicio():
+    #return {"mensagem": "API de agendamentos a funcionar"}

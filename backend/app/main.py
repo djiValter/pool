@@ -8,7 +8,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://https://pool-alpha-one.vercel.app/",
+        "https://https://pool-alpha-one.vercel.app",
     ],
     allow_credentials=False,
     allow_methods=["GET", "POST"],
@@ -18,6 +18,4 @@ app.add_middleware(
 from app.routers import agendamento
 
 app.include_router(agendamento.router)
-#@app.get("/")
-#def inicio():
-    #return {"mensagem": "API de agendamentos a funcionar"}
+

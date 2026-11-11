@@ -1,11 +1,10 @@
+import json
 import logging
 import os
-import smtplib
-import ssl
 from datetime import date, time
 from decimal import Decimal
-
-from email.message import EmailMessage
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 logger = logging.getLogger(__name__)
 
@@ -21,16 +20,9 @@ def enviar_email_agendamento(
     numero_pessoas: int,
     total: Decimal,
 ) -> None:
-    """Envia ao responsável os dados de um agendamento confirmado."""
+    """Envia a notificação de reserva pela API HTTPS do Brevo."""
     try:
-        remetente = os.environ["SMTP_USER"]
-
-        mensagem = EmailMessage()
-        mensagem["From"] = remetente
-        mensagem["To"] = os.environ["RESPONSAVEL_EMAIL"]
-        mensagem["Subject"] = "Novo agendamento da piscina"
-
-        mensagem.set_content(
+        conteudo = (
             "Novo agendamento confirmado\n\n"
             f"Nome: {nome}\n"
             f"E-mail do visitante: {email_visitante}\n"
@@ -42,17 +34,46 @@ def enviar_email_agendamento(
             f"Preço total: {total:.2f} MT\n"
         )
 
-        with smtplib.SMTP(
-            os.environ["SMTP_HOST"],
-            int(os.getenv("SMTP_PORT", "587")),
-            timeout=10,
-        ) as servidor:
-            servidor.starttls(context=ssl.create_default_context())
-            servidor.login(remetente, os.environ["SMTP_PASSWORD"])
-            servidor.send_message(mensagem)
+        dados = {
+            "sender": {
+                "name": "Mergulhos Mundiais",
+                "email": os.environ["EMAIL_REMETENTE"],
+            },
+            "to": [
+                {"email": os.environ["RESPONSAVEL_EMAIL"]},
+            ],
+            "subject": "Novo agendamento da piscina",
+            "textContent": conteudo,
+        }
 
-    except (KeyError, ValueError, OSError) as erro:
+        pedido = Request(
+            url="https://api.brevo.com/v3/smtp/email",
+            data=json.dumps(dados).encode("utf-8"),
+            headers={
+                "api-key": os.environ["BREVO_API_KEY"],
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            method="POST",
+        )
+
+        with urlopen(pedido, timeout=20) as resposta:
+            resultado = json.load(resposta)
+
+        logger.info(
+            "Brevo aceitou a notificação. messageId=%s",
+            resultado.get("messageId"),
+        )
+
+    except HTTPError as erro:
         logger.error(
-            "Falha no envio do e-mail de agendamento (%s).",
+            "Brevo rejeitou o envio. HTTP=%s. Resposta=%s",
+            erro.code,
+            erro.read().decode("utf-8", errors="replace"),
+        )
+    except (URLError, OSError, KeyError, ValueError) as erro:
+        logger.error(
+            "Falha no envio da notificação (%s): %s",
             type(erro).__name__,
+            str(erro),
         )

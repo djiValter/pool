@@ -7,7 +7,9 @@ type HorarioOcupado = {
     hora: string;
 };
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = (
+    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
 
 function formatarData(ano: number, mes: number, dia: number) {
     return `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;

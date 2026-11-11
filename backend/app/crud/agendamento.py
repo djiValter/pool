@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -17,8 +18,15 @@ def criar_agendamento(
     db: Session,
     dados: AgendamentoCreate,
 ) -> Agendamento:
-    agendamento = Agendamento(**dados.model_dump())
+    precos = {
+        "normal": Decimal("100.00"),
+        "privado": Decimal("150.00"),
+    }
 
+    valores = dados.model_dump()
+    valores["total"] = precos[dados.tipo] * dados.numero_pessoas
+
+    agendamento = Agendamento(**valores)
     db.add(agendamento)
 
     try:
@@ -30,12 +38,13 @@ def criar_agendamento(
         restricao = getattr(diagnostico, "constraint_name", None)
 
         if restricao == "uq_agendamento_data_hora":
-            raise HorarioOcupadoError("Este horário já está reservado.") from erro
+            raise HorarioOcupadoError(
+                "Este horário já está reservado."
+            ) from erro
 
         raise
 
     db.refresh(agendamento)
-
     return agendamento
 
 

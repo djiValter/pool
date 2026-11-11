@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import Annotated
 from zoneinfo import ZoneInfo
 
@@ -46,6 +46,19 @@ def criar_agendamento(
             detail="Escolhe uma data e uma hora futuras.",
         )
 
+    if not time(12, 0) <= dados.hora <= time(20, 0):
+        raise HTTPException(
+            status_code=400,
+            detail="As reservas são permitidas apenas entre as 12:00 e as 20:00.",
+        )
+
+    # weekday() devolve 5 para sábado e 6 para domingo.
+    if dados.data.weekday() not in (5, 6):
+        raise HTTPException(
+            status_code=400,
+            detail="As reservas são permitidas apenas aos sábados e domingos.",
+        )
+
     try:
         agendamento = crud.criar_agendamento(db, dados)
     except crud.HorarioOcupadoError as erro:
@@ -58,8 +71,12 @@ def criar_agendamento(
         enviar_email_agendamento,
         nome=agendamento.nome,
         email_visitante=agendamento.email,
+        contacto=agendamento.contacto,
         data=agendamento.data,
         hora=agendamento.hora,
+        tipo=agendamento.tipo,
+        numero_pessoas=agendamento.numero_pessoas,
+        total=agendamento.total,
     )
 
     return agendamento

@@ -1,11 +1,7 @@
-from app.database.connection import engine
-
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from app.database.connection import engine
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,7 +14,6 @@ if config.config_file_name is not None:
 
 from app.database.base import Base
 from app.model.agendamento import Agendamento
-
 
 target_metadata = Base.metadata
 
@@ -62,6 +57,7 @@ def run_migrations_online() -> None:
         with context.begin_transaction():
             context.run_migrations()
 
+   
 
 if context.is_offline_mode():
     run_migrations_offline()

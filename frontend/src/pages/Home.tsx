@@ -184,14 +184,14 @@ export function Home() {
 
             const confirmado = await resposta.json();
 
-// Aceita contactos com espaços, parênteses ou sinal +.
+            // Aceita contactos com espaços, parênteses ou sinal +.
             let numeroWhatsApp = reserva.contacto.replace(/\D/g, "");
 
             if (numeroWhatsApp.startsWith("00")) {
                 numeroWhatsApp = numeroWhatsApp.slice(2);
             }
 
-// Acrescenta o indicativo de Moçambique a números locais.
+            // Acrescenta o indicativo de Moçambique a números locais.
             if (numeroWhatsApp.length === 9) {
                 numeroWhatsApp = `258${numeroWhatsApp}`;
             }
@@ -221,10 +221,11 @@ export function Home() {
                 "Obrigado por escolheres Mergulhos Mundiais!",
             ].join("\n");
 
-            setLinkWhatsApp(
-                `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(textoWhatsApp)}`
-            );
+            const link = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(textoWhatsApp)}`;
 
+            setLinkWhatsApp(link);
+
+            console.log("Link WhatsApp criado:", link);
             const [anoReserva, mesReserva] = reserva.data.split("-").map(Number);
 
             setMesActual(new Date(anoReserva, mesReserva - 1, 1));
@@ -709,9 +710,22 @@ export function Home() {
                                 {enviando ? "A agendar..." : "Confirmar agendamento"}
                             </button>
 
-                            <p role="status" className="text-center text-sm text-slate-700">
-                                {mensagem}
-                            </p>
+                            <div className="space-y-4">
+                                <p role="status" className="text-center text-sm text-slate-700">
+                                    {mensagem}
+                                </p>
+
+                                {linkWhatsApp !== "" && (
+                                    <a
+                                        href={linkWhatsApp}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex w-full items-center justify-center rounded-lg bg-green-700 px-5 py-4 text-center font-bold text-white hover:bg-green-800"
+                                    >
+                                        Enviar confirmação pelo WhatsApp
+                                    </a>
+                                )}
+                            </div>
                         </fieldset>
                     </form>
 

@@ -402,7 +402,7 @@ export function Home() {
                                         }}
                                         className={`flex min-h-24 min-w-0 flex-col items-stretch rounded-xl border p-1 text-left transition sm:min-h-32 sm:p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed ${
                                             diaPrivado
-                                                ? "border-red-400 bg-red-100"
+                                                ? "border-red-300 bg-red-100"
                                                 : `${
                                                     seleccionado
                                                         ? "border-teal-700 bg-teal-50 ring-1 ring-teal-700"
@@ -413,7 +413,7 @@ export function Home() {
                                     <span
                                         className={`mb-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold ${
                                             diaPrivado
-                                                ? "bg-red-600 text-white"
+                                                ? "bg-red-200 text-white"
                                                 : ehHoje
                                                     ? "bg-teal-800 text-white"
                                                     : "text-slate-700"
@@ -423,7 +423,7 @@ export function Home() {
                                     </span>
 
                                         {diaPrivado ? (
-                                            <span className="mt-1 rounded-md bg-red-600 px-0.5 py-1 text-center text-[10px] font-semibold text-white sm:text-xs">
+                                            <span className="mt-1 rounded-md bg-red-200 px-0.5 py-1 text-center text-[10px] font-semibold text-white sm:text-xs">
                                             Privado
                                             <span className="hidden lg:block">
                                                 Dia inteiro

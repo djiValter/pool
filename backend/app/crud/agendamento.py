@@ -36,6 +36,15 @@ def criar_agendamento(
             Agendamento.tipo == "privado"
         )
 
+    if dados.tipo == "privado" and dados.numero_pessoas < 8:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "A reserva privada só está disponível "
+                "para grupos de 8 ou mais pessoas."
+            ),
+        )
+
     conflito = db.scalar(consulta.limit(1))
 
     if conflito is not None:

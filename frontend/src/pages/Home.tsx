@@ -143,6 +143,15 @@ export function Home() {
             return;
         }
 
+        if (tipo === "privado" && numeroPessoas < 8) {
+            const aviso =
+                "A reserva privada só está disponível para grupos de 8 ou mais pessoas.";
+
+            setMensagem(aviso);
+            window.alert(aviso);
+            return;
+        }
+
         envioEmCurso.current = true;
         setEnviando(true);
         setMensagem("");

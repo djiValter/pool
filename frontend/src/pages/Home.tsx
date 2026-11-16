@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 type HorarioOcupado = {
     data: string;
     hora: string;
+    tipo: "normal" | "privado";
 };
 
 const API_URL = (
@@ -363,52 +364,84 @@ export function Home() {
                                     .filter((item) => item.data === dataDia)
                                     .sort((a, b) => a.hora.localeCompare(b.hora));
 
+                                const diaPrivado = reservas.some(
+                                    (reserva) => reserva.tipo === "privado"
+                                );
+
                                 return (
                                     <button
                                         key={dataDia}
                                         type="button"
-                                        disabled={passado || !fimDeSemana || enviando}
+                                        disabled={
+                                            passado || !fimDeSemana || enviando || diaPrivado
+                                        }
                                         aria-pressed={seleccionado}
                                         aria-current={ehHoje ? "date" : undefined}
-                                        aria-label={`Seleccionar ${dataDia}. ${reservas.length} horários reservados.`}
+                                        aria-label={
+                                            diaPrivado
+                                                ? `${dataDia}: reservado para uso privado durante todo o dia.`
+                                                : `Seleccionar ${dataDia}. ${reservas.length} horários reservados.`
+                                        }
+                                        title={
+                                            diaPrivado
+                                                ? "Dia reservado para uso privado"
+                                                : undefined
+                                        }
                                         onClick={() => {
                                             setData(dataDia);
                                             setMensagem("");
 
                                             document.getElementById("agendar")?.scrollIntoView({
-                                                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                                                behavior: window.matchMedia(
+                                                    "(prefers-reduced-motion: reduce)"
+                                                ).matches
                                                     ? "instant"
                                                     : "smooth",
                                                 block: "start",
                                             });
                                         }}
-                                        className={`flex min-h-24 min-w-0 flex-col items-stretch rounded-xl border p-1 text-left transition sm:min-h-32 sm:p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:opacity-35 ${
-                                            seleccionado
-                                                ? "border-teal-700 bg-teal-50 ring-1 ring-teal-700"
-                                                : "border-slate-100 bg-slate-50/70 enabled:hover:border-teal-300 enabled:hover:bg-teal-50/50"
+                                        className={`flex min-h-24 min-w-0 flex-col items-stretch rounded-xl border p-1 text-left transition sm:min-h-32 sm:p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed ${
+                                            diaPrivado
+                                                ? "border-red-400 bg-red-100"
+                                                : `${
+                                                    seleccionado
+                                                        ? "border-teal-700 bg-teal-50 ring-1 ring-teal-700"
+                                                        : "border-slate-100 bg-slate-50/70 enabled:hover:border-teal-300 enabled:hover:bg-teal-50/50"
+                                                } disabled:opacity-35`
                                         }`}
                                     >
-                                        <span
-                                            className={`mb-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold ${
-                                                ehHoje
-                                                ? "bg-teal-800 text-white"
-                                                : "text-slate-700" 
-                                            }`}
-                                        >
-                                            {dia}
-                                        </span>
+                                    <span
+                                        className={`mb-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold ${
+                                            diaPrivado
+                                                ? "bg-red-600 text-white"
+                                                : ehHoje
+                                                    ? "bg-teal-800 text-white"
+                                                    : "text-slate-700"
+                                        }`}
+                                    >
+                                        {dia}
+                                    </span>
 
-                                        {reservas.map((reserva) => (
-                                            <span
-                                                key={`${reserva.data}-${reserva.hora}`}
-                                                className="mt-1 block rounded-md bg-slate-200 px-0.5 py-1 text-center text-[10px] font-medium text-slate-600 sm:text-xs"
-                                            >
+                                        {diaPrivado ? (
+                                            <span className="mt-1 rounded-md bg-red-600 px-0.5 py-1 text-center text-[10px] font-semibold text-white sm:text-xs">
+                                            Privado
+                                            <span className="hidden lg:block">
+                                                Dia inteiro
+                                            </span>
+                                        </span>
+                                        ) : (
+                                            reservas.map((reserva) => (
+                                                <span
+                                                    key={`${reserva.data}-${reserva.hora}`}
+                                                    className="mt-1 block rounded-md bg-slate-200 px-0.5 py-1 text-center text-[10px] font-medium text-slate-600 sm:text-xs"
+                                                                                >
                                                 {reserva.hora.slice(0, 5)}
-                                                <span className="hidden lg:inline">
+                                                    <span className="hidden lg:inline">
                                                     {" "}reservado
                                                 </span>
                                             </span>
-                                        ))}
+                                                                            ))
+                                                                        )}
                                     </button>
                                 );
                             })}
@@ -422,6 +455,14 @@ export function Home() {
                     />
                     Hoje
                 </span>
+
+                            <span className="inline-flex items-center gap-2">
+    <span
+        aria-hidden="true"
+        className="h-3 w-3 rounded border border-red-400 bg-red-100"
+    />
+    Dia reservado em privado
+</span>
 
                             <span className="inline-flex items-center gap-2">
                     <span

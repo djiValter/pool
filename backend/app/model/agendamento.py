@@ -12,12 +12,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
 
-privado: Mapped[bool] = mapped_column(
-    Boolean,
-    default=False,
-    nullable=False,
-)
-
 
 class Agendamento(Base):
     __tablename__ = "agendamentos"

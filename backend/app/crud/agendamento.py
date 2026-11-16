@@ -86,16 +86,22 @@ def listar_horarios_ocupados(
     fim: date,
 ):
     consulta = (
-        select(Agendamento.data, Agendamento.hora)
+        select(
+            Agendamento.data,
+            Agendamento.hora,
+            Agendamento.tipo,
+        )
         .where(
             Agendamento.data >= inicio,
             Agendamento.data <= fim,
         )
-        .order_by(Agendamento.data, Agendamento.hora)
+        .order_by(
+            Agendamento.data,
+            Agendamento.hora,
+        )
     )
 
-    return db.execute(consulta).all()
-
+    return db.execute(consulta).mappings().all()
 
 def buscar_agendamento_por_id(
     db: Session,

@@ -35,5 +35,6 @@ class AgendamentoResponse(BaseModel):
 class AgendamentoOcupadoResponse(BaseModel):
     data: date
     hora: time
+    tipo: Literal["normal", "privado"]
 
     model_config = ConfigDict(from_attributes=True)

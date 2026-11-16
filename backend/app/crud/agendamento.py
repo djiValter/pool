@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from fastapi import HTTPException
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -23,6 +24,33 @@ def criar_agendamento(
         "privado": Decimal("150.00"),
     }
 
+    # Procura reservas no dia seleccionado.
+    consulta = select(Agendamento).where(
+        Agendamento.data == dados.data
+    )
+
+    # Uma reserva normal só entra em conflito com uma privada.
+    # Uma reserva privada entra em conflito com qualquer reserva.
+    if dados.tipo != "privado":
+        consulta = consulta.where(
+            Agendamento.tipo == "privado"
+        )
+
+    conflito = db.scalar(consulta.limit(1))
+
+    if conflito is not None:
+        mensagem = (
+            "Não é possível reservar em privado: "
+            "já existem reservas neste dia."
+            if dados.tipo == "privado"
+            else "Este dia está reservado para uso privado."
+        )
+
+        raise HTTPException(
+            status_code=409,
+            detail=mensagem,
+        )
+
     valores = dados.model_dump()
     valores["total"] = precos[dados.tipo] * dados.numero_pessoas
 
@@ -35,7 +63,11 @@ def criar_agendamento(
         db.rollback()
 
         diagnostico = getattr(erro.orig, "diag", None)
-        restricao = getattr(diagnostico, "constraint_name", None)
+        restricao = getattr(
+            diagnostico,
+            "constraint_name",
+            None,
+        )
 
         if restricao == "uq_agendamento_data_hora":
             raise HorarioOcupadoError(

@@ -33,7 +33,7 @@ export function Home() {
     const [contacto, setContacto] = useState("");
     const [numeroPessoas, setNumeroPessoas] = useState(1);
     const [tipo, setTipo] = useState<"normal" | "privado">("normal");
-
+    const [linkWhatsApp, setLinkWhatsApp] = useState("");
     const precoPorPessoa = tipo === "normal" ? 100 : 150;
     const total = numeroPessoas * precoPorPessoa;
 
@@ -158,7 +158,7 @@ export function Home() {
         setContacto("");
         setNumeroPessoas(1);
         setTipo("normal");
-
+        setLinkWhatsApp("");
         try {
             const resposta = await fetch(`${API_URL}/agendamentos/`, {
                 method: "POST",
@@ -181,6 +181,49 @@ export function Home() {
 
                 return;
             }
+
+            const confirmado = await resposta.json();
+
+// Aceita contactos com espaços, parênteses ou sinal +.
+            let numeroWhatsApp = reserva.contacto.replace(/\D/g, "");
+
+            if (numeroWhatsApp.startsWith("00")) {
+                numeroWhatsApp = numeroWhatsApp.slice(2);
+            }
+
+// Acrescenta o indicativo de Moçambique a números locais.
+            if (numeroWhatsApp.length === 9) {
+                numeroWhatsApp = `258${numeroWhatsApp}`;
+            }
+
+            const [anoData, mesData, diaData] = reserva.data.split("-");
+            const dataFormatada = `${diaData}/${mesData}/${anoData}`;
+
+            const totalReserva = new Intl.NumberFormat("pt-MZ", {
+                style: "currency",
+                currency: "MZN",
+            }).format(Number(confirmado.total));
+
+            const textoWhatsApp = [
+                "🏊 *Mergulhos Mundiais*",
+                "*Agendamento confirmado!*",
+                "",
+                `📋 Reserva: #${confirmado.id}`,
+                `👤 Nome: ${reserva.nome}`,
+                `📧 Email: ${reserva.email}`,
+                `📱 Contacto: ${reserva.contacto}`,
+                `📅 Data: ${dataFormatada}`,
+                `🕐 Hora: ${reserva.hora.slice(0, 5)}`,
+                `🏊 Tipo: ${reserva.tipo === "privado" ? "Privado" : "Normal"}`,
+                `👥 Número de pessoas: ${reserva.numero_pessoas}`,
+                `💰 Total: ${totalReserva}`,
+                "",
+                "Obrigado por escolheres Mergulhos Mundiais!",
+            ].join("\n");
+
+            setLinkWhatsApp(
+                `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(textoWhatsApp)}`
+            );
 
             const [anoReserva, mesReserva] = reserva.data.split("-").map(Number);
 
@@ -466,12 +509,12 @@ export function Home() {
                 </span>
 
                             <span className="inline-flex items-center gap-2">
-    <span
-        aria-hidden="true"
-        className="h-3 w-3 rounded border border-red-400 bg-red-100"
-    />
-    Dia reservado em privado
-</span>
+        <span
+            aria-hidden="true"
+            className="h-3 w-3 rounded border border-red-400 bg-red-100"
+        />
+        Dia reservado em privado
+    </span>
 
                             <span className="inline-flex items-center gap-2">
                     <span
@@ -671,6 +714,25 @@ export function Home() {
                             </p>
                         </fieldset>
                     </form>
+
+                    {linkWhatsApp && (
+                        <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4">
+                            <p className="mb-3 text-sm text-green-900">
+                                A tua reserva foi confirmada. Abre o WhatsApp
+                                e carrega em Enviar para partilhar os dados
+                                com o número indicado.
+                            </p>
+
+                            <a
+                                href={linkWhatsApp}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex w-full items-center justify-center rounded-lg bg-green-700 px-5 py-3 font-semibold text-white transition hover:bg-green-800"
+                            >
+                                Abrir confirmação no WhatsApp
+                            </a>
+                        </div>
+                    )}
                 </div>
             </section>
         </>

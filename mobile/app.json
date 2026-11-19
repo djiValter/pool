@@ -4,6 +4,18 @@
     "slug": "mergulhos-mundiais",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light"
+    "userInterfaceStyle": "light",
+    "extra": {
+      "eas": {
+        "projectId": "5ba7f5c4-a592-4507-a004-b72709374555"
+      }
+    },
+    "android": {
+      "package": "com.djivalter.mergulhosmundiais"
+    }
+  },
+  "android": {
+    "package": "com.mergulhosmundiais.pool",
+    "versionCode": 1
   }
 }
